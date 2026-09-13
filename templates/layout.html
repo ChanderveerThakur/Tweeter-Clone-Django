@@ -1,0 +1,196 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+    {% block title %}
+        Tweeter App
+    {% endblock %}
+</title>
+
+<!-- Bootstrap CSS -->
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+    crossorigin="anonymous"
+>
+
+<style>
+    body {
+        min-height: 100vh;
+    }
+
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+
+    .navbar {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .main-container {
+        max-width: 900px;
+    }
+
+    .nav-buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+
+</head>
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+
+    <div class="container">
+
+        <!-- Logo -->
+        <a
+            class="navbar-brand text-primary"
+            href="{% url 'tweet_list' %}"
+        >
+            Clone Tweeter
+        </a>
+
+
+        <!-- Mobile Menu Button -->
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+        <!-- Navbar Content -->
+        <div
+            class="collapse navbar-collapse"
+            id="navbarContent"
+        >
+
+            <!-- Left Side -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a
+                        class="nav-link active"
+                        href="{% url 'tweet_list' %}"
+                    >
+                        Home
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
+
+                <li class="nav-item">
+                    <a
+                        class="nav-link"
+                        href="{% url 'tweet_create' %}"
+                    >
+                        Create Tweet
+                    </a>
+                </li>
+
+                {% endif %}
+
+            </ul>
+
+
+            <!-- Right Side -->
+            <div class="nav-buttons">
+
+                {% if user.is_authenticated %}
+
+                    <!-- Username -->
+                    <span class="navbar-text me-2">
+                        Hello,
+                        <strong>{{ user.username }}</strong>
+                    </span>
+
+
+                    <!-- Logout -->
+                    <form
+                        action="{% url 'logout' %}"
+                        method="POST"
+                        class="m-0"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline-danger btn-sm"
+                        >
+                            Logout
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <!-- Register -->
+                    <a
+                        href="{% url 'register' %}"
+                        class="btn btn-outline-primary btn-sm"
+                    >
+                        Register
+                    </a>
+
+
+                    <!-- Login -->
+                    <a
+                        href="{% url 'login' %}"
+                        class="btn btn-primary btn-sm"
+                    >
+                        Login
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN CONTENT ================= -->
+
+<main class="container main-container py-4">
+
+    {% block content %}
+
+    {% endblock content %}
+
+</main>
+
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+></script>
+
+</body>
+
+</html>

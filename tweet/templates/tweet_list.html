@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Tweets - Tweeter App
+{% endblock title %}
+
+{% block content %}
+
+<!-- Page Header -->
+
+<div class="text-center mt-4 mb-5">
+
+
+<h1 class="fw-bold">
+    Welcome to Django Tweeter
+</h1>
+
+<p class="text-body-secondary">
+    Share your thoughts with the world 🌍
+</p>
+
+{% if user.is_authenticated %}
+    <a
+        class="btn btn-primary mt-2"
+        href="{% url 'tweet_create' %}"
+    >
+         Create a Tweet
+    </a>
+{% endif %}
+
+</div>
+
+<!-- Tweets -->
+
+<div class="row g-4">
+
+
+{% for tweet in tweets %}
+
+    <div class="col-12 col-md-6 col-lg-4">
+
+        <div class="card h-100 shadow-sm">
+
+            <!-- Tweet Image -->
+            {% if tweet.photo %}
+                <img
+                    src="{{ tweet.photo.url }}"
+                    class="card-img-top"
+                    alt="Tweet image"
+                    style="height: 220px; object-fit: cover;"
+                >
+            {% endif %}
+
+
+            <!-- Tweet Content -->
+            <div class="card-body d-flex flex-column">
+
+                <!-- Username -->
+                <h5 class="card-title fw-bold">
+                    @{{ tweet.user.username }}
+                </h5>
+
+                <!-- Tweet Text -->
+                <p class="card-text">
+                    {{ tweet.text }}
+                </p>
+
+
+                <!-- Buttons -->
+                {% if tweet.user == user %}
+
+                    <div class="mt-auto pt-3">
+
+                        <a
+                            href="{% url 'tweet_edit' tweet.id %}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                             Edit
+                        </a>
+
+                        <a
+                            href="{% url 'tweet_delete' tweet.id %}"
+                            class="btn btn-outline-danger btn-sm"
+                        >
+                            Delete
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% empty %}
+
+    <!-- No Tweets -->
+    <div class="col-12">
+
+        <div class="alert alert-secondary text-center">
+            <h5>No tweets yet!</h5>
+
+            {% if user.is_authenticated %}
+                <p class="mb-0">
+                    Be the first person to create a tweet.
+                </p>
+            {% else %}
+                <p class="mb-0">
+                    Login to create your first tweet.
+                </p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+{% endfor %}
+
+
+</div>
+
+{% endblock %}

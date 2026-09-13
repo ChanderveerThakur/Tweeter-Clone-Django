@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Register - Tweeter App
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+
+<div class="col-md-6 col-lg-5">
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-body p-4">
+
+            <!-- Heading -->
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Create Your Account</h2>
+                <p class="text-body-secondary">
+                    Join Tweeter and start sharing your thoughts.
+                </p>
+            </div>
+
+
+            <!-- Registration Form -->
+            <form method="post">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <!-- Register Button -->
+                <div class="d-grid mt-3">
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg"
+                    >
+                        Register
+                    </button>
+                </div>
+
+            </form>
+
+
+            <!-- Login Link -->
+            <div class="text-center mt-4">
+
+                <p class="mb-0 text-body-secondary">
+                    Already have an account?
+                    <a
+                        href="{% url 'login' %}"
+                        class="text-primary text-decoration-none fw-semibold"
+                    >
+                        Login here
+                    </a>
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}
