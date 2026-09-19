@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}Logged Out / Tweeter{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card text-center py-5">
+        <!-- Logged out check icon -->
+        <div class="auth-brand-badge mb-3">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </div>
+
+        <h3 class="fw-bold mb-2">You Have Been Logged Out</h3>
+        <p class="text-secondary small mb-4">
+            Thank you for visiting Tweeter. We hope to see you back soon!
+        </p>
+
+        <div class="d-flex flex-column gap-2">
+            <a href="{% url 'login' %}" class="btn btn-tweet-primary justify-content-center py-2">
+                Log In Again
+            </a>
+            <a href="{% url 'tweet_list' %}" class="btn btn-tweet-secondary justify-content-center py-2">
+                Return to Home Feed
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

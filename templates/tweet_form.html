@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {% if tweet %}Edit Tweet / Tweeter{% else %}Compose Tweet / Tweeter{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="form-card">
+            <!-- Header -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h2 class="form-card-title">
+                        {% if tweet %}Edit Your Tweet{% else %}Compose Tweet{% endif %}
+                    </h2>
+                    <p class="text-secondary mb-0 small">
+                        Share thoughts and high-resolution media with the world.
+                    </p>
+                </div>
+                <a href="{% url 'tweet_list' %}" class="btn btn-tweet-secondary btn-sm">
+                    Back to Feed
+                </a>
+            </div>
+
+            <!-- Form -->
+            <form method="POST" enctype="multipart/form-data" id="tweet-edit-form">
+                {% csrf_token %}
+
+                <!-- Tweet Text -->
+                <div class="mb-3">
+                    <label for="tweet-input-text" class="form-label text-secondary small fw-semibold">
+                        Tweet Message
+                    </label>
+                    <textarea 
+                        name="text" 
+                        id="tweet-input-text" 
+                        class="form-control custom-input tweet-textarea" 
+                        rows="4" 
+                        maxlength="240" 
+                        placeholder="What's happening?!"
+                        required
+                    >{{ form.text.value|default:'' }}</textarea>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="text-muted small">Max 240 characters</span>
+                        <span class="char-counter" id="form-char-counter">240</span>
+                    </div>
+                </div>
+
+                <!-- Existing Photo Preview (if editing) -->
+                {% if tweet and tweet.photo_url %}
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-semibold">Current Image (ImageKit Cloud)</label>
+                    <div class="image-preview-wrapper d-block mb-2" style="max-height: 240px;">
+                        <img src="{{ tweet.photo_url }}" alt="Current photo" style="max-height: 240px; object-fit: cover; border-radius: var(--radius-md);">
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- New Photo Upload & Preview -->
+                <div class="mb-4">
+                    <label for="tweet-input-photo" class="form-label text-secondary small fw-semibold">
+                        {% if tweet %}Change Media Image{% else %}Attach Media Image (ImageKit Cloud Storage){% endif %}
+                    </label>
+
+                    <div class="image-preview-wrapper" id="form-preview-box">
+                        <img src="" id="form-preview-img" alt="Selected photo">
+                        <button type="button" class="image-remove-btn" id="btn-remove-form-preview" title="Remove preview">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <input 
+                        type="file" 
+                        name="photo" 
+                        id="tweet-input-photo" 
+                        class="form-control custom-input" 
+                        accept="image/*"
+                    >
+                    <div class="form-text text-muted small">
+                        Supported formats: JPEG, PNG, WEBP, GIF. Images are stored securely on ImageKit Cloud CDN.
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top" style="border-color: var(--border-subtle) !important;">
+                    <a href="{% url 'tweet_list' %}" class="btn btn-tweet-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-tweet-primary">
+                        {% if tweet %}Save Changes{% else %}Publish Tweet{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const textInput = document.getElementById('tweet-input-text');
+    const charCounter = document.getElementById('form-char-counter');
+    const photoInput = document.getElementById('tweet-input-photo');
+    const previewBox = document.getElementById('form-preview-box');
+    const previewImg = document.getElementById('form-preview-img');
+    const btnRemove = document.getElementById('btn-remove-form-preview');
+
+    function updateCounter() {
+        if (textInput && charCounter) {
+            const remaining = 240 - textInput.value.length;
+            charCounter.textContent = remaining;
+            if (remaining <= 20 && remaining > 0) {
+                charCounter.className = 'char-counter warning';
+            } else if (remaining <= 0) {
+                charCounter.className = 'char-counter danger';
+            } else {
+                charCounter.className = 'char-counter';
+            }
+        }
+    }
+
+    if (textInput) {
+        textInput.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+
+    if (photoInput && previewBox && previewImg) {
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImg.src = event.target.result;
+                    previewBox.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (btnRemove && photoInput) {
+        btnRemove.addEventListener('click', () => {
+            photoInput.value = '';
+            previewImg.src = '';
+            previewBox.style.display = 'none';
+        });
+    }
+</script>
+{% endblock %}

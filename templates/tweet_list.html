@@ -1,0 +1,278 @@
+{% extends "layout.html" %}
+
+{% block title %}Home / Tweeter{% endblock %}
+
+{% block content %}
+
+<!-- Quick Compose Box (When User is Logged In) -->
+{% if user.is_authenticated %}
+<div class="compose-card">
+    <form action="{% url 'tweet_create' %}" method="POST" enctype="multipart/form-data" id="quick-compose-form">
+        {% csrf_token %}
+        <div class="compose-header">
+            <div class="compose-avatar">
+                {{ user.username|make_list|first|upper }}
+            </div>
+            <div class="compose-body">
+                <textarea 
+                    name="text" 
+                    id="compose-text" 
+                    class="form-control tweet-textarea" 
+                    placeholder="What is happening?!" 
+                    maxlength="240" 
+                    required
+                ></textarea>
+
+                <!-- Dynamic Image Preview -->
+                <div class="image-preview-wrapper" id="image-preview-box">
+                    <img src="" id="preview-img-element" alt="Image preview">
+                    <button type="button" class="image-remove-btn" id="btn-remove-preview" title="Remove image">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Hidden file input -->
+                <input 
+                    type="file" 
+                    name="photo" 
+                    id="compose-photo-input" 
+                    class="d-none" 
+                    accept="image/*"
+                >
+
+                <div class="compose-footer">
+                    <div class="compose-tools">
+                        <!-- Photo Upload Icon Button -->
+                        <button type="button" class="btn-icon-tool" id="btn-trigger-file" title="Add Photo via ImageKit">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="char-counter" id="char-counter">240</span>
+                        <button type="submit" class="btn-tweet-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"/>
+                            </svg>
+                            Post
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% else %}
+<!-- Welcome Guest Banner -->
+<div class="compose-card text-center py-4 mb-4">
+    <h4 class="fw-bold mb-2">Welcome to Tweeter</h4>
+    <p class="text-secondary mb-3">Join the conversation to post tweets, and connect.</p>
+    <div class="d-flex justify-content-center gap-2">
+        <a href="{% url 'login' %}" class="btn btn-tweet-secondary">Log In</a>
+        <a href="{% url 'register' %}" class="btn btn-tweet-primary">Create Account</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tweet Stream -->
+<div class="tweet-stream">
+    {% for tweet in tweets %}
+    <article class="tweet-card" id="tweet-{{ tweet.id }}">
+        <!-- Header -->
+        <div class="tweet-card-header">
+            <div class="tweet-user-info">
+                <div class="tweet-avatar">
+                    {{ tweet.user.username|make_list|first|upper }}
+                </div>
+                <div class="tweet-meta">
+                    <div class="tweet-user-name">
+                        <span>{{ tweet.user.username }}</span>
+                        <span class="verified-badge" title="Verified Member">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <span class="tweet-handle-time">
+                        @{{ tweet.user.username }} · {{ tweet.created_at|timesince }} ago
+                    </span>
+                </div>
+            </div>
+
+            <!-- Author Controls -->
+            {% if tweet.user == user %}
+            <div class="tweet-author-tools">
+                <a href="{% url 'tweet_edit' tweet.id %}" class="btn-tweet-secondary btn-sm" title="Edit Tweet">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit
+                </a>
+                <a href="{% url 'tweet_delete' tweet.id %}" class="btn-tweet-danger btn-sm" title="Delete Tweet">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Body -->
+        <p class="tweet-content-text">{{ tweet.text }}</p>
+
+        <!-- Media Image (via ImageKit CDN or local fallback) -->
+        {% if tweet.photo_url %}
+        <div class="tweet-media-container">
+            <img src="{{ tweet.photo_url }}" alt="Tweet image" class="tweet-image" loading="lazy">
+        </div>
+        {% elif tweet.photo %}
+        <div class="tweet-media-container">
+            <img src="{{ tweet.photo.url }}" alt="Tweet image" class="tweet-image" loading="lazy">
+        </div>
+        {% endif %}
+
+        <!-- Interactive Action Buttons -->
+        <div class="tweet-actions-bar">
+            <div class="action-btn-group">
+                <!-- Reply -->
+                <button type="button" class="action-btn" title="Reply">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>0</span>
+                </button>
+
+                <!-- Retweet -->
+                <button type="button" class="action-btn retweet-btn" onclick="toggleRetweet(this)" title="Repost">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m17 1 4 4-4 4"/>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                        <path d="m7 23-4-4 4-4"/>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                    </svg>
+                    <span class="rt-count">0</span>
+                </button>
+
+                <!-- Like -->
+                <button type="button" class="action-btn like-btn" onclick="toggleLike(this)" title="Like">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span class="like-count">0</span>
+                </button>
+            </div>
+        </div>
+    </article>
+    {% empty %}
+    <!-- Empty Timeline Card -->
+    <div class="empty-timeline-card">
+        <div class="empty-icon-circle">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+        </div>
+        <h4 class="fw-bold mb-2">No tweets yet</h4>
+        <p class="text-secondary mb-4">Be the pioneer! Share a thought or upload a photo to kick off the feed.</p>
+        {% if user.is_authenticated %}
+        <button type="button" class="btn btn-tweet-primary" onclick="document.getElementById('compose-text')?.focus()">
+            Post Your First Tweet
+        </button>
+        {% else %}
+        <a href="{% url 'register' %}" class="btn btn-tweet-primary">Get Started Now</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Live Character Counter & Image Preview Logic
+    const composeText = document.getElementById('compose-text');
+    const charCounter = document.getElementById('char-counter');
+    const photoInput = document.getElementById('compose-photo-input');
+    const btnTriggerFile = document.getElementById('btn-trigger-file');
+    const previewBox = document.getElementById('image-preview-box');
+    const previewImg = document.getElementById('preview-img-element');
+    const btnRemovePreview = document.getElementById('btn-remove-preview');
+
+    if (composeText && charCounter) {
+        composeText.addEventListener('input', () => {
+            const remaining = 240 - composeText.value.length;
+            charCounter.textContent = remaining;
+            if (remaining <= 20 && remaining > 0) {
+                charCounter.className = 'char-counter warning';
+            } else if (remaining <= 0) {
+                charCounter.className = 'char-counter danger';
+            } else {
+                charCounter.className = 'char-counter';
+            }
+        });
+    }
+
+    if (btnTriggerFile && photoInput) {
+        btnTriggerFile.addEventListener('click', () => photoInput.click());
+
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImg.src = event.target.result;
+                    previewBox.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (btnRemovePreview && photoInput) {
+        btnRemovePreview.addEventListener('click', () => {
+            photoInput.value = '';
+            previewImg.src = '';
+            previewBox.style.display = 'none';
+        });
+    }
+
+    // Micro-interactions for Likes and Retweets
+    function toggleLike(btn) {
+        const countSpan = btn.querySelector('.like-count');
+        let count = parseInt(countSpan.textContent) || 0;
+        const svg = btn.querySelector('svg');
+        
+        if (btn.classList.contains('liked')) {
+            btn.classList.remove('liked');
+            svg.setAttribute('fill', 'none');
+            countSpan.textContent = Math.max(0, count - 1);
+        } else {
+            btn.classList.add('liked');
+            svg.setAttribute('fill', 'currentColor');
+            countSpan.textContent = count + 1;
+        }
+    }
+
+    function toggleRetweet(btn) {
+        const countSpan = btn.querySelector('.rt-count');
+        let count = parseInt(countSpan.textContent) || 0;
+        
+        if (btn.classList.contains('text-success')) {
+            btn.classList.remove('text-success');
+            countSpan.textContent = Math.max(0, count - 1);
+        } else {
+            btn.classList.add('text-success');
+            countSpan.textContent = count + 1;
+        }
+    }
+</script>
+{% endblock %}

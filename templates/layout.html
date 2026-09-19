@@ -1,196 +1,190 @@
 {% load static %}
-
 <!DOCTYPE html>
-
 <html lang="en" data-bs-theme="dark">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0d14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}Tweeter — Share What's Happening{% endblock %}</title>
 
-<title>
-    {% block title %}
-        Tweeter App
-    {% endblock %}
-</title>
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom Tweeter Dynamic Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-<!-- Bootstrap CSS -->
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-    crossorigin="anonymous"
->
-
-<style>
-    body {
-        min-height: 100vh;
-    }
-
-    .navbar-brand {
-        font-weight: 700;
-        font-size: 1.4rem;
-    }
-
-    .navbar {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .main-container {
-        max-width: 900px;
-    }
-
-    .nav-buttons {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-</style>
-
+    {% block extra_head %}{% endblock %}
 </head>
-
 <body>
 
+    <!-- ================= TOP NAVBAR ================= -->
+    <nav class="navbar navbar-expand-lg app-navbar">
+        <div class="container feed-container py-0">
+            <!-- Brand Logo -->
+            <a class="brand-wrapper" href="{% url 'tweet_list' %}">
+                <div class="brand-icon">
+                    <!-- Modern Tweeter / Bird Icon SVG -->
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"/>
+                    </svg>
+                </div>
+                <span class="brand-text">Tweeter</span>
+            </a>
 
-<!-- ================= NAVBAR ================= -->
-
-<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
-
-    <div class="container">
-
-        <!-- Logo -->
-        <a
-            class="navbar-brand text-primary"
-            href="{% url 'tweet_list' %}"
-        >
-            Clone Tweeter
-        </a>
-
-
-        <!-- Mobile Menu Button -->
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarContent"
-            aria-controls="navbarContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-
-        <!-- Navbar Content -->
-        <div
-            class="collapse navbar-collapse"
-            id="navbarContent"
-        >
-
-            <!-- Left Side -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-                <li class="nav-item">
-                    <a
-                        class="nav-link active"
-                        href="{% url 'tweet_list' %}"
-                    >
-                        Home
-                    </a>
-                </li>
-
+            <!-- Mobile Quick Actions / Navbar Toggle -->
+            <div class="d-flex align-items-center gap-2 d-lg-none">
                 {% if user.is_authenticated %}
-
-                <li class="nav-item">
-                    <a
-                        class="nav-link"
-                        href="{% url 'tweet_create' %}"
-                    >
-                        Create Tweet
-                    </a>
-                </li>
-
+                    <div class="avatar-badge" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                        {{ user.username|make_list|first|upper }}
+                    </div>
                 {% endif %}
-
-            </ul>
-
-
-            <!-- Right Side -->
-            <div class="nav-buttons">
-
-                {% if user.is_authenticated %}
-
-                    <!-- Username -->
-                    <span class="navbar-text me-2">
-                        Hello,
-                        <strong>{{ user.username }}</strong>
-                    </span>
-
-
-                    <!-- Logout -->
-                    <form
-                        action="{% url 'logout' %}"
-                        method="POST"
-                        class="m-0"
-                    >
-
-                        {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            class="btn btn-outline-danger btn-sm"
-                        >
-                            Logout
-                        </button>
-
-                    </form>
-
-                {% else %}
-
-                    <!-- Register -->
-                    <a
-                        href="{% url 'register' %}"
-                        class="btn btn-outline-primary btn-sm"
-                    >
-                        Register
-                    </a>
-
-
-                    <!-- Login -->
-                    <a
-                        href="{% url 'login' %}"
-                        class="btn btn-primary btn-sm"
-                    >
-                        Login
-                    </a>
-
-                {% endif %}
-
+                <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
             </div>
 
+            <!-- Navbar Links & Actions (Laptop / Desktop View) -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'tweet_list' %}active{% endif %}" href="{% url 'tweet_list' %}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            Home
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'tweet_create' %}active{% endif %}" href="{% url 'tweet_create' %}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            New Tweet
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    {% if user.is_authenticated %}
+                        <div class="user-pill d-none d-sm-flex">
+                            <div class="avatar-badge">{{ user.username|make_list|first|upper }}</div>
+                            <span class="user-handle">@{{ user.username }}</span>
+                        </div>
+                        <form action="{% url 'logout' %}" method="POST" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-tweet-secondary btn-sm" title="Log out">
+                                Log Out
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-tweet-secondary btn-sm">Log in</a>
+                        <a href="{% url 'register' %}" class="btn btn-tweet-primary btn-sm">Sign up</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
+    </nav>
 
-    </div>
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="feed-container">
+        {% if messages %}
+            <div class="messages-container mb-3">
+                {% for message in messages %}
+                    <div class="custom-alert custom-alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'success' }}{% endif %}">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if message.tags == 'error' %}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            {% else %}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-</nav>
+        {% block content %}{% endblock %}
+    </main>
 
+    <!-- ================= MOBILE FLOATING ACTION BUTTON ================= -->
+    {% if user.is_authenticated %}
+    <a href="{% url 'tweet_create' %}" class="mobile-fab d-lg-none" title="Create Tweet">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </a>
+    {% endif %}
 
-<!-- ================= MAIN CONTENT ================= -->
+    <!-- ================= MOBILE BOTTOM NAVIGATION BAR ================= -->
+    <nav class="mobile-bottom-nav d-lg-none">
+        <a href="{% url 'tweet_list' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'tweet_list' %}active{% endif %}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span>Home</span>
+        </a>
 
-<main class="container main-container py-4">
+        {% if user.is_authenticated %}
+        <a href="{% url 'tweet_create' %}" class="mobile-nav-item mobile-nav-compose {% if request.resolver_match.url_name == 'tweet_create' %}active{% endif %}">
+            <div class="compose-glow-circle">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </div>
+            <span>Tweet</span>
+        </a>
 
-    {% block content %}
+        <div class="mobile-nav-item dropdown dropup">
+            <a href="#" class="mobile-nav-link text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="avatar-badge" style="width: 26px; height: 26px; font-size: 0.75rem;">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+                <span>Profile</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end mb-2 shadow-lg" style="border: 1px solid var(--border-subtle); background: var(--bg-card); backdrop-filter: blur(16px);">
+                <li><span class="dropdown-item-text text-secondary small">Logged in as <strong>@{{ user.username }}</strong></span></li>
+                <li><hr class="dropdown-divider border-secondary"></li>
+                <li>
+                    <form action="{% url 'logout' %}" method="POST" class="m-0 px-2 py-1">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-tweet-danger btn-sm w-100">Log Out</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        {% else %}
+        <a href="{% url 'login' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Log In</span>
+        </a>
+        <a href="{% url 'register' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'register' %}active{% endif %}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <line x1="19" y1="8" x2="19" y2="14"></line>
+                <line x1="22" y1="11" x2="16" y2="11"></line>
+            </svg>
+            <span>Sign Up</span>
+        </a>
+        {% endif %}
+    </nav>
 
-    {% endblock content %}
-
-</main>
-
-
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-></script>
-
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
-
 </html>
