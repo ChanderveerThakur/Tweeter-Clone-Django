@@ -62,7 +62,7 @@ else:
         'django.contrib.staticfiles',
         'tweet',
     ]
-    MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+    MONGODB_URI = os.getenv('MONGODB_URI') or os.getenv('MONGODB_HOST', 'mongodb://localhost:27017/')
     MONGODB_NAME = os.getenv('MONGODB_NAME', 'tweeter_db')
 
     DATABASES = {
@@ -75,7 +75,13 @@ else:
             },
         }
     }
+    DATABASE_ROUTERS = ["django_mongodb_backend.routers.MongoRouter"]
     DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
+    MIGRATION_MODULES = {
+        'admin': 'mongo_migrations.admin',
+        'auth': 'mongo_migrations.auth',
+        'contenttypes': 'mongo_migrations.contenttypes',
+    }
 
 # MIDDLEWARE
 MIDDLEWARE = [
