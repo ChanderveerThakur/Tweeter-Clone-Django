@@ -71,7 +71,7 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='tweet.backends.EmailOrUsernameBackend')
             messages.success(request, f'Welcome to Tweeter, @{user.username}!')
             return redirect('tweet_list')
         else:
